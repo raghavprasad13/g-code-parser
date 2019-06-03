@@ -3,6 +3,7 @@ import multiprocessing as mp
 from method_handlers import *
 import commands
 import sys
+import os
 
 if len(sys.argv) != 2:
 	print("Usage: python3 parser.py </path/to/input_file>")
@@ -105,6 +106,9 @@ def main():
 	input_file_handle = open('./tmp.txt', 'r')
 	
 	lines = input_file_handle.readlines()
+
+	input_file_handle.close()
+	os.remove('./tmp.txt')
 
 	pool = mp.Pool(mp.cpu_count() + 2)
 
