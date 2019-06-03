@@ -6,7 +6,7 @@ import sys
 import os
 
 if len(sys.argv) != 2:
-	print("Usage: python3 parser.py </path/to/input_file>")
+	print("Usage: python3 parser.py </path/to/GCode_file>")
 	sys.exit(1)
 
 normalizer(sys.argv[1])
@@ -56,34 +56,6 @@ def parse_commands(machine):
 
 		p = mp.Process(target = handler, args = (params, machine))
 		p.start()
-		# if directive == 'G1':
-			
-		# 	if message.split('.') == 'Error':
-		# 		break
-		# 	print(message)
-		# if directive == 'G28':
-		# 	message = execute_g28(params, machine)
-		# elif directive == 'G2':
-		# 	pass
-
-		# if command == 'estop':
-		# 	print('Emergency stop!')
-		# 	break
-		# if command == 'ustop':
-		# 	print('Unconditional stop!')
-		# 	break
-		# p = mp.Process(command[0], command[1])
-		
-
-# def execute_commands(directive_queue, machine):
-# 	while True:
-# 		if command == 'estop':
-# 			print('Emergency stop!')
-# 			break
-# 		if command == 'ustop':
-# 			print('Unconditional stop!')
-# 			break
-# 		proc = mp.Process(directive_queue.get())
 
 
 def get_command_directive(command):
@@ -99,10 +71,8 @@ def main():
 	instr_queue = manager.Queue()
 	directive_queue = manager.Queue()
 
-	# machine = Machine(instr_queue, (0,0,0), (0,0,0), 0, 0, False, Machine.ROOM_TEMP, Machine.ROOM_TEMP, False, ('mm', 's', 'C'), True)
 	machine = Machine(instruction_queue = instr_queue)
-	# machine.instruction_queue.put('Hello')
-	# print(machine.instruction_queue.get())
+
 	input_file_handle = open('./tmp.txt', 'r')
 	
 	lines = input_file_handle.readlines()
@@ -115,7 +85,6 @@ def main():
 	jobs = []
 	job1 = pool.apply_async(get_commands, (lines, machine))
 	job2 = pool.apply_async(parse_commands, (machine, ))
-	# job3 = pool.apply_async()
 
 	jobs = [job1, job2]
 

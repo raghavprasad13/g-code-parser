@@ -29,29 +29,14 @@ def remove_semi_colon_comments(lines, output_queue):
 def remove_parenthesis_comments(input_queue, output_queue):
 	''' This function takes the G Code without the 
 		; comments and removes the comments enclosed in ().
-		Additionally, all extraneous spaces are removed'''
+		Additionally, all extraneous whitespaces are removed'''
 
 	while not input_queue.empty():
 		line = input_queue.get()
 		line = remove_comments(line)
-		line = " ".join(line.split())
+		line = " ".join(line.split())	# This is done in order to remove extra whitespaces
 		output_queue.put(line)
 
-
-# def remove_extra_zeros(input_queue, output_queue):
-# 	''' This function takes in the G Code sans comments
-# 		and removes extraneous 0s present. For example:
-# 		X001 becomes X1'''
-
-# 	while not input_queue.empty():
-# 		line = input_queue.get()
-# 		for i in range(len(line)):
-# 			char = line[i]
-# 			if char.isalpha() and ((char is not 'G') or (char is not 'M')):
-# 				j = i + 1
-# 				while True:
-# 					if line[j] is '0':
-# 						line.replace()
 		
 def remove_comments(line):
 	while True:
@@ -67,6 +52,7 @@ def remove_comments(line):
 
 
 def print_normalized_output(output_file, input_queue):
+	''' method handler to write the normalized GCode to the temporary file '''
 	out_file = output_file.open()
 	while True:
 		line = input_queue.get()
@@ -82,7 +68,9 @@ def print_normalized_output(output_file, input_queue):
 
 def normalizer(input_file_name):
 	input_file = File(input_file_name, 'r')
-	output_file = File('./tmp.txt', 'a+')
+	output_file = File('./tmp.txt', 'a+')	
+	''' A temporary file (tmp.txt) is created to 
+		store the normalized GCode '''
 
 	input_file_handle = input_file.open()
 

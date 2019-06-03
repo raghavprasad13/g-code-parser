@@ -1,3 +1,6 @@
+''' This file contains a mapping from the GCode directive 
+	to the appropriate method handler '''
+	
 from method_handlers import *
 
 command_dict = {'G1': execute_g1,
