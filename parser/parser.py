@@ -30,7 +30,7 @@ class Machine(object):
 		self.absolute_coordinates = absolute_coordinates
 
 	def move(self, position):
-		machine.current_position = position
+		self.current_position = position
 
 	def set_feed_rate(self, rate):
 		self.feed_rate = rate
