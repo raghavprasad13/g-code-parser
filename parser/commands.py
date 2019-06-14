@@ -9,5 +9,5 @@ command_dict = {'G1': execute_g1,
 				'M112': execute_m112,
 				'M117': execute_m117}
 
-def get_command_dict():
+def get_command():
 	return command_dict

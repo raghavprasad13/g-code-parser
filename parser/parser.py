@@ -1,9 +1,17 @@
+'''
+version: 1.0.1
+Currently supports commands G1, G28, M0, M112 and M117
+'''
+
 from normalize import normalizer
+from queue import Queue
 import multiprocessing as mp
 from method_handlers import *
 import commands
 import sys
 import os
+
+ERROR_FREE_CODE = True
 
 if len(sys.argv) != 2:
 	print("Usage: python3 parser.py </path/to/GCode_file>")
@@ -15,7 +23,7 @@ class Machine(object):
 
 	ROOM_TEMP = 27
 
-	def __init__(self, instruction_queue, current_position = (0,0,0), origin = (0,0,0), feed_rate=0, extrusion_rate=0, fan_on=False, bed_temp=ROOM_TEMP, extruder_temp=ROOM_TEMP, is_waiting=False, selected_units=('mm', 's', 'C'), absolute_coordinates=True, message=None):
+	def __init__(self, instruction_queue, message_queue, current_position = (0,0,0), origin = (0,0,0), feed_rate=0, extrusion_rate=0, fan_on=False, bed_temp=ROOM_TEMP, extruder_temp=ROOM_TEMP, is_waiting=False, selected_units=('mm', 's', 'C'), absolute_coordinates=True, message=None):
 		self.instruction_queue = instruction_queue
 		self.current_position = current_position
 		self.origin = origin
@@ -28,6 +36,7 @@ class Machine(object):
 		self.is_waiting = is_waiting
 		self.selected_units = selected_units
 		self.absolute_coordinates = absolute_coordinates
+		self.message_queue = message_queue
 
 	def move(self, position):
 		self.current_position = position
@@ -42,20 +51,31 @@ def get_commands(lines, machine):
 
 
 def parse_commands(machine):
-	while True:
+	global ERROR_FREE_CODE
+
+	while not machine.instruction_queue.empty():
 		command = machine.instruction_queue.get()
 
-		if command == 'estop':
-			print('Emergency stop!')
-			break
-		if command == 'ustop':
-			print('Unconditional stop!')
+		command_directive, params = get_command_directive(command)
+
+		command_directive = command_directive.strip()
+
+		command_return_message = commands.get_command()[command_directive](params, machine)
+
+		if command_return_message.startswith("Error"):
+			print(command_return_message)
+			ERROR_FREE_CODE = False
 			break
 
-		handler, params = get_command_directive(command)
+		if command_return_message == '==> Emergency stop':
+			machine.message_queue.put(command_return_message)
+			break
 
-		p = mp.Process(target = handler, args = (params, machine))
-		p.start()
+		if command_return_message == '==> Unconditional stop':
+			machine.message_queue.put(command_return_message)
+			break
+
+		machine.message_queue.put(command_return_message)
 
 
 def get_command_directive(command):
@@ -63,15 +83,21 @@ def get_command_directive(command):
 	directive = command[0]
 	params = command[1:]
 
-	return [commands.get_command_dict().get(directive), params]
+	return [directive, params]
+
+def print_command_messages(machine):
+	while not machine.message_queue.empty():
+		print(machine.message_queue.get())
 
 
 def main():
-	manager = mp.Manager()
-	instr_queue = manager.Queue()
-	directive_queue = manager.Queue()
+	# manager = mp.Manager()
+	instr_queue = Queue()
+	message_queue = Queue()
+	# directive_queue = manager.Queue()
 
-	machine = Machine(instruction_queue = instr_queue)
+	machine = Machine(instruction_queue=instr_queue, 
+						message_queue=message_queue)
 
 	input_file_handle = open('./tmp.txt', 'r')
 	
@@ -80,18 +106,25 @@ def main():
 	input_file_handle.close()
 	os.remove('./tmp.txt')
 
-	pool = mp.Pool(mp.cpu_count() + 2)
+	get_commands(lines, machine)
 
-	jobs = []
-	job1 = pool.apply_async(get_commands, (lines, machine))
-	job2 = pool.apply_async(parse_commands, (machine, ))
+	parse_commands(machine)
 
-	jobs = [job1, job2]
+	if ERROR_FREE_CODE:
+		print_command_messages(machine)
 
-	for job in jobs:
-		job.get()
+	# pool = mp.Pool(mp.cpu_count() + 2)
 
-	pool.close()
+	# jobs = []
+	# job1 = pool.apply_async(get_commands, (lines, machine))
+	# job2 = pool.apply_async(parse_commands, (machine, ))
+
+	# jobs = [job1, job2]
+
+	# for job in jobs:
+	# 	job.get()
+
+	# pool.close()
 
 if __name__ == '__main__':
 	main()
