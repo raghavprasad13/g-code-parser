@@ -8,4 +8,4 @@
 * cd parser
 * python3 parser.py tester.txt
 
-[![Generic badge](https://img.shields.io/badge/<build>-<failing>-<red>.svg)]
+[![Generic badge](https://img.shields.io/badge/build-failing-red.svg)]()
