@@ -1,11 +1,13 @@
 # G Code Parser
 
-### Steps:
-* First, the raw GCode file is normalized, i.e. comments are removed along with extraneous spaces, etc. This is accomplished by `normalize.py`
-* The next step is parsing this normalized Gcode. The normalized GCode is temporarily held in `tmp.txt`. So far, only `G1`, `G28`, `M0`, `M112` and `M117` are parseable.
+A simple parser for G Code built using Python
+
+[![Generic badge](https://img.shields.io/badge/build-failing-red.svg)](https://github.com/raghavprasad13/g-code-parser)
+
+### Requirements:
+* python 3.6+
 
 ### To run:
+* Clone this repository
 * cd parser
-* python3 parser.py tester.txt
-
-[![Generic badge](https://img.shields.io/badge/build-failing-red.svg)]()
+* python3 parser.py `path/to/gcode/file`
