@@ -2,7 +2,7 @@
 
 A simple parser for G Code built using Python
 
-[![Generic badge](https://img.shields.io/badge/build-passing-green.svg)](https://github.com/raghavprasad13/g-code-parser)
+[![Generic badge](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/raghavprasad13/g-code-parser)
 
 At the moment, it has support for G Code commands `G1`, `G28`, `M0`, `M112` and `M117`
 
